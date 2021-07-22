@@ -12,27 +12,39 @@ import java.net.URL;
 public class Converter  implements TextGraphicsConverter, TextColorSchema {
     private final char[] SYMBOLS = {'#', '$', '@', '%', '*', '+', '-', '\''};
     private double maxRatio;
-    private int maxHeight;
     private int maxWidth;
+    private int maxHeight;
 
     @Override
     public String convert(String url) throws IOException, BadImageSizeException {
         BufferedImage img = ImageIO.read(new URL(url));
-        int height = img.getHeight();
         int width = img.getWidth();
-        double ratio = width / height;
-        System.out.println(height + ", " + width + ", " + ratio);
-        System.out.println(maxHeight + ", " + maxWidth + ", " + maxRatio);
-        if (height > maxHeight && maxHeight > 0) {
-            System.err.printf("Недопустимая высота изображения: %d вместо %d%n", height, maxHeight);
-            return null;
-        }
-        if (width > maxWidth && maxWidth > 0) {
-            System.err.printf("Недопустимая ширина изображения: %d вместо %d%n", width, maxWidth);
-            return null;
-        }
+        int height = img.getHeight();
+        double ratio = (double) width / height;
+        System.out.printf("ImageSizes: width=%d height=%d ratio=%.2f%n", width, height, ratio);
+        System.out.printf("MaxSizes: width=%d height=%d ratio=%.2f%n", maxWidth, maxHeight, maxRatio);
         if (ratio > maxRatio && maxRatio > 0) {
             throw new BadImageSizeException(ratio, maxRatio);
+        }
+        if (height > maxHeight && maxHeight > 0) {
+            System.out.printf("\tНедопустимая высота изображения: %d вместо %d%n", height, maxHeight);
+            img = resize(img, (int) (width / ((double) height / maxHeight)), maxHeight);
+            System.out.println("Произведено сжатие изображения");
+            width = img.getWidth();
+            height = img.getHeight();
+            ratio = (double) width / height;
+            System.out.printf("NewImageSizes: width=%d height=%d ratio=%.2f%n", width, height, ratio);
+            //return null;
+        }
+        if (width > maxWidth && maxWidth > 0) {
+            System.out.printf("\tНедопустимая ширина изображения: %d вместо %d%n", width, maxWidth);
+            img = resize(img, maxWidth, (int) (height / ((double) width / maxWidth)));
+            System.out.println("Произведено сжатие изображения");
+            width = img.getWidth();
+            height = img.getHeight();
+            ratio = (double) width / height;
+            System.out.printf("NewImageSizes: width=%d height=%d ratio=%.2f%n", width, height, ratio);
+            //return null;
         }
 
         byte[][] bytes = new byte[img.getHeight()][img.getWidth()];
@@ -46,12 +58,9 @@ public class Converter  implements TextGraphicsConverter, TextColorSchema {
                 int red =   (rgb >> 16) & 0xFF;
                 int green = (rgb >>  8) & 0xFF;
                 int blue =  (rgb      ) & 0xFF;
-                //bytes[i][j] = (byte) ((red + green + blue) / 3);
                 bytes[i][j] = (byte) (((red + minByte) + (green + minByte) + (blue + minByte)) / 3);
-                //System.out.print((bytes[i][j] - minByte) + " ");
-                //System.out.println(((bytes[i][j] - minByte) / ((maxByte - minByte + 1) / SYMBOLS.length)));
                 char c = SYMBOLS[((bytes[i][j] - minByte) / ((maxByte - minByte + 1) / SYMBOLS.length))];
-                System.out.print(c + " ");
+                System.out.print(c + "");
                 sb.append(c);
                 sb.append(" ");
             }
@@ -63,22 +72,16 @@ public class Converter  implements TextGraphicsConverter, TextColorSchema {
 
     @Override
     public void setMaxWidth(int width) {
-        //TODO:Написать метод
-        System.out.println("\tЗаказали setMaxWidth(" + width + ")");
         maxWidth = width;
     }
 
     @Override
     public void setMaxHeight(int height) {
-        //TODO:Написать метод
-        System.out.println("\tЗаказали setMaxHeight(" + height + ")");
         maxHeight = height;
     }
 
     @Override
     public void setMaxRatio(double maxRatio) {
-        //TODO:Написать метод
-        System.out.println("\tЗаказали setMaxRatio(" + maxRatio + ")");
         this.maxRatio = maxRatio;
     }
 
@@ -92,5 +95,16 @@ public class Converter  implements TextGraphicsConverter, TextColorSchema {
     public char convert(int color) {
         //TODO:Написать метод
         return 0;
+    }
+
+    private BufferedImage resize(BufferedImage oldImage, int newWidth, int newHeight) {
+        //BufferedImage newImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage newImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+        //BufferedImage newImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_GRAY);
+        //newImage.getGraphics().drawImage(resized, 0, 0, null);
+        newImage.createGraphics().drawImage(oldImage, 0, 0, newWidth, newHeight, null);
+        newImage.createGraphics().dispose();
+        //System.out.println(newImage.getWidth() + " " + newImage.getHeight());
+        return newImage;
     }
 }
