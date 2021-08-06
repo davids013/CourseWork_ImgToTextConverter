@@ -13,9 +13,9 @@ public class Main {
         converter.setTextColorSchema(new ColorSchema(ColorSchema.MY_STRANGE_SCHEMA));
         converter.setMaxRatio(1.546d);
 
-    //Пейзаж (широкий/исключение)
+        //Пейзаж (широкий/исключение)
         //String url = "https://wallpaperforu.com/wp-content/uploads/2020/08/nature-wallpaper-200816160641212048x1152.jpg";
-    //Филипп
+        //Филипп
         String url = "https://i.ibb.co/6DYM05G/edu0.jpg";
 /*
         GServer server = new GServer(converter); // Создаём объект сервера
@@ -29,7 +29,7 @@ public class Main {
         fileWriter.write(converter.convert(url));
         fileWriter.close();
         try {
-            Runtime.getRuntime().exec(new String[] { "c:\\windows\\notepad.exe", fileName });
+            Runtime.getRuntime().exec(new String[]{"c:\\windows\\notepad.exe", fileName});
         } catch (Exception e) {
             e.printStackTrace();
         }

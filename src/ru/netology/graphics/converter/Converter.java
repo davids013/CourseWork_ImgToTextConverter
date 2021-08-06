@@ -15,13 +15,13 @@ public class Converter implements TextGraphicsConverter {
     private int maxWidth;
     private int maxHeight;
 
-public Converter() {
-    schema = new ColorSchema();
-}
+    public Converter() {
+        schema = new ColorSchema();
+    }
 
-public Converter(TextColorSchema schema) {
-    this.schema = schema;
-}
+    public Converter(TextColorSchema schema) {
+        this.schema = schema;
+    }
 
     @Override
     public String convert(String url) throws IOException, BadImageSizeException {
@@ -60,8 +60,8 @@ public Converter(TextColorSchema schema) {
                 int rgb = img.getRGB(j, i);
                 //int alpha = (rgb >> 24) & 0xFF;
                 int red =   (rgb >> 16) & 0xFF;
-                int green = (rgb >>  8) & 0xFF;
-                int blue =  (rgb      ) & 0xFF;
+                int green = (rgb >> 8) & 0xFF;
+                int blue =  (rgb) & 0xFF;
                 byte color = (byte) ((Byte.MIN_VALUE * 3 + red + green + blue) / 3);
                 char c = schema.convert(color);
                 //System.out.print(c);
